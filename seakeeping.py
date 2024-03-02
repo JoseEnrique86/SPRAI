@@ -896,3 +896,39 @@ def phi(x):
     y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*math.exp(-x*x)
 
     return 0.5*(1.0 + sign*y)
+
+## function for calculate probabiity of water on deck
+def water_on_deck(m0,freeboard):
+
+    Pwod = np.exp(-0.5*freeboard*freeboard/m0)
+
+    return Pwod
+
+def number_of_water(Tp,Pwod):
+
+    Now = 3600*Pwod/Tp
+    return Now
+
+## fucntion for calculate slamming
+def slamming(draught,velocity,m01,m02):
+
+    Pos = np.exp(-0.5*draught*draught/m01)*np.exp(-0.5*velocity*velocity/m02)
+
+    return Pos
+
+def number_of_slamming(Tp,Pos):
+
+    Nos = 3600*Pos/Tp
+    return Nos
+
+## function for calculate propeller emersion
+def propeller_emersion(m0,depth):
+
+    Pem = np.exp(-0.5*depth*depth/m0)
+
+    return Pem
+
+def number_of_propeller_emergences(Tp,Pem):
+
+    Npem = 3600*Pem/Tp
+    return Npem
