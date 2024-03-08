@@ -899,36 +899,44 @@ def phi(x):
 
 ## function for calculate probabiity of water on deck
 def water_on_deck(m0,freeboard):
-
+    ## m0: zero order of vertical movement spectrum of the bow
     Pwod = np.exp(-0.5*freeboard*freeboard/m0)
 
     return Pwod
 
-def number_of_water(Tp,Pwod):
+def number_of_ocurrences_water(m0,m2,Pwod):
 
+    Tp = 1/(2*np.pi)*np.sqrt(m2/m0)
     Now = 3600*Pwod/Tp
     return Now
 
 ## fucntion for calculate slamming
-def slamming(draught,velocity,m01,m02):
-
-    Pos = np.exp(-0.5*draught*draught/m01)*np.exp(-0.5*velocity*velocity/m02)
+def slamming(draught,velocity,m0,m2):
+    ## m0: zero order of vertical movement spectrum of the bow
+    ## m2: second order of vertical movement spectrum of the bow
+    ## draught: ship draught at bow
+    ## velocity: thresshold velocity for slamming
+    Pos = np.exp(-0.5*draught*draught/m0)*np.exp(-0.5*velocity*velocity/m2)
 
     return Pos
 
-def number_of_slamming(Tp,Pos):
+def number_of_slamming_ocurrences(m0,m2,Pos):
 
+    Tp = 1/(2*np.pi)*np.sqrt(m2/m0)
     Nos = 3600*Pos/Tp
     return Nos
 
 ## function for calculate propeller emersion
 def propeller_emersion(m0,depth):
+    ## m0: zero order of vertical movement spectrum of the propeller
+    ## depth: propeller depth
 
     Pem = np.exp(-0.5*depth*depth/m0)
 
     return Pem
 
-def number_of_propeller_emergences(Tp,Pem):
+def number_of_propeller_emergences(m0,m2,Pem):
 
+    Tp = 1/(2*np.pi)*np.sqrt(m2/m0)
     Npem = 3600*Pem/Tp
     return Npem
