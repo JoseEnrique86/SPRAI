@@ -1136,7 +1136,7 @@ def restoration_calc(sinputs):
     # common parameters
     #Li =(nships); Bi = (nships); Xbi = (nships); CFi = (nships); GMTi = (nships); GMLi = (nships)
     Li = sinputs.iloc[:,0];  Bi = sinputs.iloc[:,1];   Xbi = sinputs.iloc[:,7]
-    CFi = sinputs.iloc[:,4]; GMTi = sinputs.iloc[:,9]; GMLi = sinputs.iloc[:,10]
+    CFi = sinputs.iloc[:,4]; GMTi = sinputs.iloc[:,12]; GMLi = sinputs.iloc[:,13]
 
     ## hydrostatic restoration in full scale
     for b in range(nships):
