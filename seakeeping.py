@@ -495,15 +495,15 @@ def RAO_calculation2(ipt):
                 forces_global[:6] = f_s
                 forces_global[6:] = f_c
 
-                fn = ipt[b,14] # Froude number
-                beta = angles[i]
-                v = fn*np.sqrt(grav)
-                w = fq[f,b]
-
-                we = w*(1-(v*w/grav)*np.cos(beta*2*np.pi/360))
+                #fn = ipt[b,14] # Froude number
+                #beta = angles[i]
+                #v = fn*np.sqrt(grav)
+                #w = fq[f,b]
+                #we = w*(1-(v*w/grav)*np.cos(beta*2*np.pi/360))
+                
                 Global_1.fill(0); Global_2.fill(0) # reset variable
-                Global_1 = -1.0*we*we*(Mass_i + Added_Mass_i) + Stiffness_i
-                Global_2 =  we*Damp_i
+                Global_1 = -1.0*w*w*(Mass_i + Added_Mass_i) + Stiffness_i
+                Global_2 =  w*Damp_i
 
                 # | -w^2M+k    -wD  |
                 # |    wD   -w^2M+k |
