@@ -751,10 +751,10 @@ def full_scale_hydrodynamic_param2(si):
         fn = si[b,14] # Froude number
         #alpha = si[b,15] # Wave heading
 
-        kref = 2.0*np.pi
-        wref = np.sqrt(2.0*np.pi*grav)
+        kref = 2.0*np.pi/Li
+        wref = np.sqrt(2.0*np.pi*grav/Li)
         wref2 = np.power(wref,2)
-        v = fn*np.sqrt(grav)
+        v = fn*np.sqrt(grav*Li)
         
         freq_ad = np.array(frequencies2)
         k_ad = (np.power(freq_ad,2))/grav
