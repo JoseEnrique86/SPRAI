@@ -59,14 +59,31 @@ def traslate_forces(point_a,point_b,force):
     return force
 
 ## traslation RAOS to another point
-def traslate_RAOS(point_a,point_b,RAO):
+#def traslate_RAOS(point_a,point_b,RAO):
+#    
+#    rx = point_b[0] - point_a[0]; ry = point_b[1] - point_a[1]; rz = point_b[2] - point_a[2]
+#   alpha = np.cos(RAO[3,0]); beta = np.cos(RAO[4,0]); gamma = np.cos(RAO[5,0])
+#
+#    RAO[0,0] += (beta*rz - gamma*ry); RAO[1,0] += (gamma*rx - alpha*rz); RAO[2,0] += (alpha*ry - beta*rx)
+#
+#    return RAO
+
+
+def traslate_RAOS(point_a, point_b, RAO):
+    r = np.array(point_b) - np.array(point_a)
     
-    rx = point_b[0] - point_a[0]; ry = point_b[1] - point_a[1]; rz = point_b[2] - point_a[2]
-    alpha = np.cos(RAO[3,0]); beta = np.cos(RAO[4,0]); gamma = np.cos(RAO[5,0])
+    rao_trans = RAO[0:3, 0]  # surge, sway, heave
+    rao_rot = RAO[3:6, 0]    # roll, pitch, yaw
 
-    RAO[0,0] += (beta*rz - gamma*ry); RAO[1,0] += (gamma*rx - alpha*rz); RAO[2,0] += (alpha*ry - beta*rx)
+    rotacional = np.cross(rao_rot, r)
 
-    return RAO
+    rao_translated = rao_trans + rotacional
+    
+    RAO_new = np.copy(RAO)
+    RAO_new[0:3, 0] = rao_translated
+
+    return RAO_new
+
 
 ###############################################################################################
 
@@ -940,3 +957,4 @@ def number_of_propeller_emergences(m0,m2,Pem):
     Tp = 1/(2*np.pi)*np.sqrt(m2/m0)
     Npem = 3600*Pem/Tp
     return Npem
+
