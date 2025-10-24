@@ -34,6 +34,7 @@ init_dt = datetime.datetime.now() # current date
 f.write(str(init_dt))
 
 # read input file
+# all position of point in ship should be entered referred to ship stern
 # inputs: L, B, T, Cb, Cf, Cm, CC, Xb, Zb, XG, YG, ZG, GMT, GML, Fn, beta, Mod, Dir, Tp, Hs, Xp, Yp, Zp
 shipinputs = cm.read_inputs(ifile,lfile)
 # size of input file
@@ -310,4 +311,5 @@ sv.s_seakeeping(resfolder,nships) # seakeeping magnitudes
 f.write("End calculation\n")
 end_dt = datetime.datetime.now() # current date
 f.write(str(end_dt))
+
 f.close()
