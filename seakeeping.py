@@ -68,6 +68,23 @@ def traslate_forces(point_a,point_b,force):
 #
 #    return RAO
 
+def traslate_RAOS_complex(point_a,point_b,RAO):
+    # displacement vector
+    rx = point_b[0] - point_a[0]; ry = point_b[1] - point_a[1]; rz = point_b[2] - point_a[2]
+   
+    rao_tans = RAO[0:3,0]
+    rao_rot = RAO[3:6,0]
+   
+    r = np.array([[rx], [ry], [rz]])
+ 
+    rotational = np.cross(rao_rot.flatten(),r.flatten())
+ 
+    rao_traslated = rao_tans + rotational
+    rao_new = np.zeros_like(RAO, dtype=complex)
+ 
+    rao_new[0:3,0] = rao_traslated
+    rao_new[3:6,0] = rao_rot
+    return rao_new
 
 def traslate_RAOS(point_a, point_b, RAO):
     r = np.array(point_b) - np.array(point_a)
@@ -187,8 +204,9 @@ def RAO_calculation1(ipt):
                 point_a[0] = cm.Point_CDG[index,0]
                 point_a[1] = cm.Point_CDG[index,1]
                 point_a[2] = cm.Point_CDG[index,2]
-                point_b = [Xbi-0.5*Lenght,0.0,Zbi]
-
+                #point_b = [Xbi-0.5*Lenght,0.0,Zbi]
+                point_b = [Xbi,0.0,Zbi]
+                
                 Stiffness_i = np.zeros((6,6))
                 Stiffness_i = traslate_matrix(point_a,point_b,Stiffness)
                 Mass_i = np.zeros((6,6))
@@ -198,8 +216,9 @@ def RAO_calculation1(ipt):
                 f_s[0] = cm.FEX_sin_fs[f,i,index]; f_s[1] = cm.FEY_sin_fs[f,i,index]; f_s[2] = cm.FEZ_sin_fs[f,i,index]; f_s[3] = cm.MEX_sin_fs[f,i,index]; f_s[4] = cm.MEY_sin_fs[f,i,index]; f_s[5] = cm.MEZ_sin_fs[f,i,index]
                 f_c[0] = cm.FEX_cos_fs[f,i,index]; f_c[1] = cm.FEY_cos_fs[f,i,index]; f_c[2] = cm.FEZ_cos_fs[f,i,index]; f_c[3] = cm.MEX_cos_fs[f,i,index]; f_c[4] = cm.MEY_cos_fs[f,i,index]; f_c[5] = cm.MEZ_cos_fs[f,i,index]
                 
-                ## traslation from 0,0,0 to center of buoyancy
+                ## traslation from 0,0,0 (reference frame in the database calculation) to center of buoyancy
                 point_a = [0.0,0.0,0.0]
+                point_b = [Xbi-0.5*Lenght,0.0,Zbi]
 
                 f_s = traslate_forces(point_a,point_b,f_s)
                 f_c = traslate_forces(point_a,point_b,f_c)
@@ -231,19 +250,25 @@ def RAO_calculation1(ipt):
                 Ampl_c = global_ampl[6:]
 
                 # Traslate RAOS from center of buoyancy to calculation point
-                point_a = [Xbi-0.5*Lenght,0.0,Zbi]
+                point_a = [Xbi,0.0,Zbi]
                 point_b[0] = cm.Point_sk[index,0]
                 point_b[1] = cm.Point_sk[index,1]
                 point_b[2] = cm.Point_sk[index,2]
 
-                Ampl_s_tras = traslate_RAOS(point_a,point_b,Ampl_s)
-                Ampl_c_tras = traslate_RAOS(point_a,point_b,Ampl_c)
+                Amplitude_complex = np.zeros(vc,dtype=complex)
+                Amplitude_complex = Ampl_c + 1j*Ampl_s
+                # Traslation
+                Amplitude_complex_tras = traslate_RAOS_complex(point_a,point_b,Amplitude_complex)
                 
                 Amplitude.fill(0) # reset variable
-                ## Phase at XP, YP, ZP
-                Phase = np.arctan(Ampl_s_tras/Ampl_c_tras)
-                ## Amplitude RAO at XP, YP, ZP
-                Amplitude = np.sqrt(np.power(Ampl_s_tras,2) + np.power(Ampl_c_tras,2))
+                Amplitude = np.abs(Amplitude_complex_tras)
+                Phase = np.angle(Amplitude_complex_tras)
+
+                ## not used old function
+                ## Ampl_s_tras = traslate_RAOS(point_a,point_b,Ampl_s)
+                ## Ampl_c_tras = traslate_RAOS(point_a,point_b,Ampl_c)
+                ## Phase = np.arctan(Ampl_s_tras/Ampl_c_tras)
+                ## Amplitude = np.sqrt(np.power(Ampl_s_tras,2) + np.power(Ampl_c_tras,2))
 
                 wavenumber = fq[f,b]*fq[f,b]/grav
 
@@ -490,7 +515,7 @@ def RAO_calculation2(ipt):
                 point_a[1] = cm.Point_CDG[index,1]
                 point_a[2] = cm.Point_CDG[index,2]
                 # bouyancy center
-                point_b = [Xbi-0.5*Lenght,0.0,Zbi]
+                point_b = [Xbi,0.0,Zbi]
 
                 Stiffness_i = np.zeros((6,6))
                 Stiffness_i = traslate_matrix(point_a,point_b,Stiffness)
@@ -503,7 +528,7 @@ def RAO_calculation2(ipt):
 
                 ## traslation from 0,0,0 to center of buoyancy
                 point_a = [0.0,0.0,0.0]
-
+                point_b = [Xbi-0.5*Lenght,0.0,Zbi]
                 f_s = traslate_forces(point_a,point_b,f_s)
                 f_c = traslate_forces(point_a,point_b,f_c)
 
@@ -538,18 +563,26 @@ def RAO_calculation2(ipt):
                 Ampl_c = global_ampl[6:]
 
                 # Traslate RAOS from center of buoyancy to calculation point
-                point_a = [Xbi-0.5*Lenght,0.0,Zbi]
+                point_a = [Xbi,0.0,Zbi]
                 point_b[0] = cm.Point_sk[index,0]
                 point_b[1] = cm.Point_sk[index,1]
                 point_b[2] = cm.Point_sk[index,2]
 
-                Ampl_s_tras = traslate_RAOS(point_a,point_b,Ampl_s)
-                Ampl_c_tras = traslate_RAOS(point_a,point_b,Ampl_c)
-
+                Amplitude_complex = np.zeros(vc,dtype=complex)
+                Amplitude_complex = Ampl_c + 1j*Ampl_s
+                
+                # Traslation
+                Amplitude_complex_tras = traslate_RAOS_complex(point_a,point_b,Amplitude_complex)
                 Amplitude.fill(0) # reset variable
-                Phase = np.arctan(Ampl_s_tras/Ampl_c_tras)
-                #Amplitude = np.sqrt(np.power(Ampl_c_tras,2)+ np.power(Ampl_s_tras,2))
-                Amplitude = np.sqrt(np.power(Ampl_c,2)+ np.power(Ampl_s,2))
+                Amplitude = np.abs(Amplitude_complex_tras)
+                Phase = np.angle(Amplitude_complex_tras)
+
+                ## not used old function
+                ## Ampl_s_tras = traslate_RAOS(point_a,point_b,Ampl_s)
+                ## Ampl_c_tras = traslate_RAOS(point_a,point_b,Ampl_c)
+                ## Phase = np.arctan(Ampl_s_tras/Ampl_c_tras)
+                ## Amplitude = np.sqrt(np.power(Ampl_c,2)+ np.power(Ampl_s,2))
+                
                 wavenumber = w*w/grav
 
                 cm.RAO_11[f,i,index] = Amplitude[0]; cm.RAO_phase_11[f,i,index] = Phase[0]
@@ -957,4 +990,5 @@ def number_of_propeller_emergences(m0,m2,Pem):
     Tp = 1/(2*np.pi)*np.sqrt(m2/m0)
     Npem = 3600*Pem/Tp
     return Npem
+
 
